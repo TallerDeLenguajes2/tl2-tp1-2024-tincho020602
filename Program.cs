@@ -1,2 +1,12 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using System.IO;
+public class Cadeteria
+{
+//atributos
+private  string nombre { get; set; }
+private string telefono  { get; set; }
+//private List
+
+}
+//constructor
+
+//Cadeteria listadoCadete = new listadoCadete();
