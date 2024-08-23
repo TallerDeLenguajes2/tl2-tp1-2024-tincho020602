@@ -16,4 +16,4 @@ pedidoPendiente();
 pedidoRealizado();
 
 ● Teniendo en cuenta los principios de abstracción y ocultamiento, que atributos,
-propiedades y métodos deberían ser públicos y cuáles privados.
+propiedades y métodos deberían ser públicos y cuáles privados
