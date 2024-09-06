@@ -16,6 +16,7 @@ public class Cadeteria
         // Inicialización de las listas de cadetes y pedidos
         listadoCadetes = new List<Cadete>();
         listadoPedidos = new List<Pedido>();
+
     }
 
     // Propiedad para obtener y modificar la lista de cadetes
@@ -30,8 +31,10 @@ public class Cadeteria
         listadoPedidos.Add(pedido);
     }
 
+
+
     // Método para asignar un cadete a un pedido
-    public void AsignarCadete(Cadete cadete, Pedido pedido)
+    /*public void AsignarCadete(Cadete cadete, Pedido pedido)
     {
         // Asignamos el pedido al cadete
         cadete.Pedidos.Add(pedido);
@@ -42,7 +45,7 @@ public class Cadeteria
 
         // También removemos el pedido de la lista general para evitar duplicaciones
         listadoPedidos.Remove(pedido);
-    }
+    }*/
 
     // Método para dar de alta un nuevo cadete y agregarlo a la lista de cadetes
     public void AltaCadete(Cadete cadete)
@@ -51,11 +54,11 @@ public class Cadeteria
     }
 
     // Método para obtener todos los pedidos asignados que aún están pendientes
-    public List<Pedido> ObtenerPedidosAsignados()
+    public List<Pedido> ObtenerPedidos(int idCadete, Estado estadoPedido)
     {
         // Selecciona los pedidos pendientes de todos los cadetes
-        return listadoCadetes.SelectMany(cadete => cadete.Pedidos)
-                             .Where(pedido => pedido.Estado == Estado.PENDIENTE)
+        return listadoPedidos.Where(pedido => pedido.Cadete.Id == idCadete && 
+                                              pedido.Estado == estadoPedido)
                              .ToList();
     }
 
@@ -63,7 +66,7 @@ public class Cadeteria
     public List<Pedido> ObtenerTodosLosPedidos()
     {
         // Combina los pedidos generales con los pedidos asignados
-        return listadoPedidos.Concat(ObtenerPedidosAsignados()).ToList();
+        return listadoPedidos;
     }
 
     // Sobrescribe el método ToString para devolver una cadena con la información de la cadetería
@@ -71,4 +74,21 @@ public class Cadeteria
     {
         return $"CADETERIA: {nombre} - {telefono}";
     }
+
+
+    // Método para calcular el jornal a cobrar basado en la cantidad de pedidos completados
+    public float JornalACobrar(int id)
+    {
+        // Cuenta los pedidos en estado "COMPLETADO" y multiplica por el pago por pedido
+
+        return 500 * listadoPedidos.Where(p => p.Cadete.Id == id).Count();
+    }
+
+    //Agregar el método AsignarCadeteAPedido en la clase Cadeteria que recibe como parámetro el id del cadete y el id del Pedido
+    public void AsignarCadeteAPedido(Cadete cadete, Pedido pedido)
+    {
+        pedido.Cadete = cadete;
+    }
+
+
 }

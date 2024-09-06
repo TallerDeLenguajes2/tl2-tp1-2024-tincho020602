@@ -9,8 +9,11 @@ public class Pedido
     private Cliente cliente; // Cliente asociado al pedido
     private Estado estado; // Estado actual del pedido (pendiente, completado, etc.)
 
+    private Cadete cadete;//atributo cadete
+
+
     // Constructor de la clase Pedido
-    public Pedido(string observaciones, Cliente cliente)
+    public Pedido(string observaciones, Cliente cliente)    
     {
         // Asigna un número de pedido único, incrementando en 1 el último número generado
         numero = ++ultimoNumeroGenerado; 
@@ -21,6 +24,10 @@ public class Pedido
         // Asigna las observaciones y el cliente proporcionados al crear el pedido
         this.observaciones = observaciones;
         this.cliente = cliente;
+
+        // Inicializo el cadete en NULL porque puede que el pedido aún NO haya sido asignado a un cadete
+        cadete = null;
+
     }
 
     // Propiedad para obtener y establecer el número del pedido
@@ -28,6 +35,7 @@ public class Pedido
 
     // Propiedad para obtener y establecer el estado del pedido
     public Estado Estado { get => estado; set => estado = value; }
+    public Cadete Cadete { get => cadete; set => cadete = value; }
 
     // Método que devuelve los datos completos del cliente asociado al pedido
     public string VerDatosCliente()

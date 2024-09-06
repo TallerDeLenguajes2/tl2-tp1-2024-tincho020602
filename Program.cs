@@ -72,7 +72,7 @@
                             var pedidoB = SolicitarSeleccionPedido(cadeteria.ListadoPedidos); // Solicita la selección de un pedido de la lista.
                             System.Console.WriteLine();
                             var cadete = SolicitarSeleccionCadete(); // Solicita la selección de un cadete de la lista.
-                            cadeteria.AsignarCadete(cadete, pedidoB); // Asigna el pedido seleccionado al cadete seleccionado.
+                            cadeteria.AsignarCadeteAPedido(cadete, pedidoB); // Asigna el pedido seleccionado al cadete seleccionado.
                             MostrarResultadoExitoso(
                                 $"El pedido nro. {pedidoB.Numero} ha sido asignado al cadete {cadete.Nombre} ({cadete.Id})"
                             );
@@ -94,7 +94,7 @@
                             break;
 
                         case 4:
-                            // Opción 4: Reasignar el cadete en un pedido.
+                            // Opción 4: Reasignar el cade  te en un pedido.
                             var pedidosAsignados = cadeteria.ObtenerPedidosAsignados(); // Obtiene todos los pedidos que ya han sido asignados a cadetes.
                             if (!pedidosAsignados.Any())
                                 Console.WriteLine("No hay pedidos para reasignar");
@@ -104,7 +104,7 @@
                             var pedidoD = SolicitarSeleccionPedido(pedidosAsignados); // Solicita la selección de un pedido asignado.
                             Console.WriteLine();
                             var cadeteB = SolicitarSeleccionCadete(); // Solicita la selección de un cadete para reasignar el pedido.
-                            cadeteria.AsignarCadete(cadeteB, pedidoD); // Reasigna el pedido al nuevo cadete seleccionado.
+                            cadeteria.AsignarCadeteAPedido(cadeteB, pedidoD); // Reasigna el pedido al nuevo cadete seleccionado.
                             MostrarResultadoExitoso($"El pedido nro. {pedidoD.Numero} ha sido re-asignado al cadete {cadeteB.Nombre} ({cadeteB.Id})");
                             break;
 
@@ -130,9 +130,13 @@
         int totalEnvios = 0;
         foreach (var cadete in cadeteria.ListadoCadetes)
         {
+            var cantidadPedidosCompletados = cadeteria.ObtenerPedidos(cadete.Id, Estado.COMPLETADO).Count();
+            var cantidadPedidosPendientes = cadeteria.ObtenerPedidos(cadete.Id, Estado.PENDIENTE).Count();
+
             // Contar los envíos completados y pendientes por cada cadete.
-        Console.WriteLine($"\t> CADETE ID {cadete.Id} ({cadete.Nombre}) - Envíos terminados: {cadete.BuscarPedidos(Estado.COMPLETADO).Count()} - Envíos pendientes: {cadete.BuscarPedidos(Estado.PENDIENTE).Count()}");
-            totalEnvios += cadete.Pedidos.Count(); // Sumar el total de pedidos de cada cadete.
+            Console.WriteLine($"\t> CADETE ID {cadete.Id} ({cadete.Nombre}) - Envíos terminados: {cantidadPedidosCompletados} - Envíos pendientes: {cantidadPedidosPendientes}");
+
+            totalEnvios += cantidadPedidosCompletados + cantidadPedidosPendientes; // Sumar el total de pedidos de cada cadete.
         }
         System.Console.WriteLine($"\n* Envíos totales del día: {totalEnvios}");
 
