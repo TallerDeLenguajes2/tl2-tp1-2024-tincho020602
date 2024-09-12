@@ -11,10 +11,10 @@ class Program
         {
             // Selecciono el tipo de acceso a los datos
             AccesoDatos? acceso;
-            System.Console.WriteLine("--- Seleccione el tipo de acceso a los datos ---");
-            System.Console.WriteLine("\n\t1. CSV");
-            System.Console.WriteLine("\t2. JSON");
-            System.Console.Write("\n> Digite su opcion: ");
+            Console.WriteLine("--- Seleccione el tipo de acceso a los datos ---");
+            Console.WriteLine("\n\t1. CSV");
+            Console.WriteLine("\t2. JSON");
+            Console.Write("\n> Digite su opcion: ");
             string strOpcion = Console.ReadLine() ?? string.Empty;
 
             if (!int.TryParse(strOpcion, out int opcion))
