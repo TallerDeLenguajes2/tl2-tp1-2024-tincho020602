@@ -1,0 +1,92 @@
+[
+    {
+        "id": 1,
+        "nombre": "Carlos Mendez",
+        "direccion": "Avenida Los Pinos 150",
+        "telefono": "9876543"
+    },
+    {
+        "id": 2,
+        "nombre": "Lucía Fernández",
+        "direccion": "Boulevard Central 210",
+        "telefono": "8765432"
+    },
+    {
+        "id": 3,
+        "nombre": "Roberto Sánchez",
+        "direccion": "Calle Flor 330",
+        "telefono": "7654321"
+    },
+    {
+        "id": 4,
+        "nombre": "Valeria Ruiz",
+        "direccion": "Avenida Las Rosas 440",
+        "telefono": "6543210"
+    },
+    {
+        "id": 5,
+        "nombre": "Javier Ortiz",
+        "direccion": "Calle Horizonte 550",
+        "telefono": "5432109"
+    },
+    {
+        "id": 6,
+        "nombre": "Daniela Torres",
+        "direccion": "Avenida Sol 660",
+        "telefono": "4321098"
+    },
+    {
+        "id": 7,
+        "nombre": "Miguel Castillo",
+        "direccion": "Calle Luna 770",
+        "telefono": "3210987"
+    },
+    {
+        "id": 8,
+        "nombre": "Patricia Delgado",
+        "direccion": "Plaza Cielo 880",
+        "telefono": "2109876"
+    },
+    {
+        "id": 9,
+        "nombre": "Gabriel Ramos",
+        "direccion": "Calle Amanecer 990",
+        "telefono": "1098765"
+    },
+    {
+        "id": 10,
+        "nombre": "Sofía Herrera",
+        "direccion": "Boulevard Las Palmas 1000",
+        "telefono": "9876543"
+    },
+    {
+        "id": 11,
+        "nombre": "Tomás Jiménez",
+        "direccion": "Calle Estrella 1100",
+        "telefono": "8765432"
+    },
+    {
+        "id": 12,
+        "nombre": "Isabel Castro",
+        "direccion": "Avenida Mar 1200",
+        "telefono": "7654321"
+    },
+    {
+        "id": 13,
+        "nombre": "Diego Medina",
+        "direccion": "Calle Río Verde 1300",
+        "telefono": "6543210"
+    },
+    {
+        "id": 14,
+        "nombre": "Natalia Fuentes",
+        "direccion": "Calle Nube 1400",
+        "telefono": "5432109"
+    },
+    {
+        "id": 15,
+        "nombre": "Alejandro Pérez",
+        "direccion": "Calle Viento Sur 1500",
+        "telefono": "4321098"
+    }
+]

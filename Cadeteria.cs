@@ -1,34 +1,47 @@
+using System.IO.Compression;
+using System.Text.Json.Serialization;
 public class Cadeteria
 {
     // Variables privadas de la clase Cadeteria
     private string nombre; // Nombre de la cadetería
     private string telefono; // Número de teléfono de la cadetería
     private List<Cadete> listadoCadetes; // Lista de cadetes disponibles en la cadetería
-    private List<Pedido> listadoPedidos; // Lista de pedidos en la cadetería
+    private List<Pedido> pedidosAsignados;
+    private List<Pedido> pedidosTomados;
 
     // Constructor de la clase Cadeteria
-    public Cadeteria(string nombre, string telefono)
+        public Cadeteria()
+    {
+        nombre = "";
+        telefono = "";
+        // Inicialización de las listas de cadetes y pedidos
+        listadoCadetes = new List<Cadete>();
+        pedidosAsignados = new List<Pedido>();
+        pedidosTomados = new List<Pedido>();
+    }
+
+    public Cadeteria(string nombre, string telefono) : this()
     {
         // Asignación de los parámetros a las variables privadas
         this.nombre = nombre;
         this.telefono = telefono;
-
-        // Inicialización de las listas de cadetes y pedidos
-        listadoCadetes = new List<Cadete>();
-        listadoPedidos = new List<Pedido>();
-
     }
 
+        [JsonPropertyName("nombre")]
+    public string Nombre { get => nombre; set => nombre = value; }
+    [JsonPropertyName("telefono")]
+    public string Telefono { get => telefono; set => telefono = value; }
     // Propiedad para obtener y modificar la lista de cadetes
     public List<Cadete> ListadoCadetes { get => listadoCadetes; set => listadoCadetes = value; }
 
-    // Propiedad para obtener y modificar la lista de pedidos
-    public List<Pedido> ListadoPedidos { get => listadoPedidos; set => listadoPedidos = value; }
+    public List<Pedido> PedidosAsignados { get => pedidosAsignados; set => pedidosAsignados = value; }
+    public List<Pedido> PedidosTomados { get => pedidosTomados; set => pedidosTomados = value; }
+
 
     // Método para agregar un pedido a la lista de pedidos
     public void TomarPedido(Pedido pedido)
     {
-        listadoPedidos.Add(pedido);
+        pedidosTomados.Add(pedido);
     }
 
 
@@ -57,7 +70,7 @@ public class Cadeteria
     public List<Pedido> ObtenerPedidos(int idCadete, Estado estadoPedido)
     {
         // Selecciona los pedidos pendientes de todos los cadetes
-        return listadoPedidos.Where(pedido => pedido.Cadete.Id == idCadete && 
+        return pedidosTomados.Where(pedido => pedido.Cadete.Id == idCadete && 
                                               pedido.Estado == estadoPedido)
                              .ToList();
     }
@@ -66,7 +79,7 @@ public class Cadeteria
     public List<Pedido> ObtenerTodosLosPedidos()
     {
         // Combina los pedidos generales con los pedidos asignados
-        return listadoPedidos;
+          return pedidosTomados.Concat(pedidosAsignados).ToList();
     }
 
     // Sobrescribe el método ToString para devolver una cadena con la información de la cadetería
@@ -81,14 +94,20 @@ public class Cadeteria
     {
         // Cuenta los pedidos en estado "COMPLETADO" y multiplica por el pago por pedido
 
-        return 500 * listadoPedidos.Where(p => p.Cadete.Id == id).Count();
+        return 500 * pedidosAsignados.Where(p => p.Cadete.Id == id).Count();
     }
 
     //Agregar el método AsignarCadeteAPedido en la clase Cadeteria que recibe como parámetro el id del cadete y el id del Pedido
     public void AsignarCadeteAPedido(Cadete cadete, Pedido pedido)
     {
         pedido.Cadete = cadete;
+        pedidosTomados.Remove(pedido);
+        pedidosAsignados.Add(pedido);
     }
 
 
+    public List<Pedido> BuscarPedidos(int idCadete)
+    {
+        return pedidosAsignados.Where(p => p.Cadete.Id == idCadete).ToList();
+    }
 }

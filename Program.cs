@@ -1,4 +1,7 @@
-﻿class Program
+﻿﻿using System.IO.Compression;
+using accesoAdatos;
+
+class Program
 {
     private static Cadeteria cadeteria;
 
@@ -6,16 +9,42 @@
     {
         try
         {
-            // Intenta cargar los datos de los archivos CSV y crear la instancia de la cadetería.
-            cadeteria = CrearCadeteria();
-            CargarCadetes(cadeteria);
+            // Selecciono el tipo de acceso a los datos
+            AccesoDatos? acceso;
+            System.Console.WriteLine("--- Seleccione el tipo de acceso a los datos ---");
+            System.Console.WriteLine("\n\t1. CSV");
+            System.Console.WriteLine("\t2. JSON");
+            System.Console.Write("\n> Digite su opcion: ");
+            string strOpcion = Console.ReadLine() ?? string.Empty;
+
+            if (!int.TryParse(strOpcion, out int opcion))
+            {
+                MostrarError("Opción inválida. No se puede proceder con el cargado de datos.");
+                return;
+            }
+
+            acceso = opcion switch
+            {
+                1 => new AccesoCsv(),
+                2 => new AccesoJson(),
+                _ => null
+            };
+
+            if (acceso == null)
+            {
+                MostrarError("Opción inválida. No se puede proceder con el cargado de datos.");
+                return;
+            }
+
+            // Cargo los datos de los csv
+            cadeteria = acceso.CrearCadeteria();
+            cadeteria.ListadoCadetes = acceso.CrearCadetes();
         }
         catch (Exception ex)
         {
-            // Si ocurre algún error durante la carga de datos, muestra el mensaje de error.
             MostrarError(ex.Message);
+            return;
         }
-
         int opcionSeleccionada = 0;
         int opcionSalida = 5; // Esta es la opción que el usuario debe seleccionar para salir del programa.
         do
@@ -52,7 +81,7 @@
                     {
                         case 1:
                             // Opción 1: Dar de alta un nuevo pedido.
-                            System.Console.WriteLine("\n\n*** INGRESANDO NUEVO PEDIDO ***\n");
+                            Console.WriteLine("\n\n*** INGRESANDO NUEVO PEDIDO ***\n");
                             var cliente = SolicitarDatosCliente(); // Solicita los datos del cliente.
                             var pedidoA = SolicitarDatosPedido(cliente); // Solicita los datos del pedido.
                             cadeteria.TomarPedido(pedidoA); // Agrega el pedido a la cadetería.
@@ -65,12 +94,12 @@
                             // Opción 2: Asignar un pedido a un cadete.
                             if (!cadeteria.ListadoCadetes.Any())
                                 Console.WriteLine("\nNo hay cadetes a los cuales asignarles pedidos");
-                            if (!cadeteria.ListadoPedidos.Any())
+                            if (!cadeteria.PedidosTomados.Any())
                                 Console.WriteLine("\nNo hay pedidos sin asignar");
 
-                            System.Console.WriteLine("\n\n*** ASIGNANDO UN PEDIDO ***\n");
-                            var pedidoB = SolicitarSeleccionPedido(cadeteria.ListadoPedidos); // Solicita la selección de un pedido de la lista.
-                            System.Console.WriteLine();
+                            Console.WriteLine("\n\n*** ASIGNANDO UN PEDIDO ***\n");
+                            var pedidoB = SolicitarSeleccionPedido(cadeteria.PedidosTomados); // Solicita la selección de un pedido de la lista.
+                            Console.WriteLine();
                             var cadete = SolicitarSeleccionCadete(); // Solicita la selección de un cadete de la lista.
                             cadeteria.AsignarCadeteAPedido(cadete, pedidoB); // Asigna el pedido seleccionado al cadete seleccionado.
                             MostrarResultadoExitoso(
@@ -84,7 +113,7 @@
                             if (!pedidos.Any())
                                 Console.WriteLine("No hay pedidos a los cuales modificarles el estado");
 
-                            System.Console.WriteLine("\n\n*** MODIFICANDO ESTADO DE UN PEDIDO ***\n");
+                            Console.WriteLine("\n\n*** MODIFICANDO ESTADO DE UN PEDIDO ***\n");
 
                             var pedidoC = SolicitarSeleccionPedido(pedidos); // Solicita la selección de un pedido.
                             var nuevoEstado = SolicitarSeleccionEstado(); // Solicita la selección de un nuevo estado para el pedido.
@@ -95,7 +124,7 @@
 
                         case 4:
                             // Opción 4: Reasignar el cade  te en un pedido.
-                            var pedidosAsignados = cadeteria.ObtenerPedidosAsignados(); // Obtiene todos los pedidos que ya han sido asignados a cadetes.
+                            var pedidosAsignados = cadeteria.PedidosAsignados; // Obtiene todos los pedidos que ya han sido asignados a cadetes.
                             if (!pedidosAsignados.Any())
                                 Console.WriteLine("No hay pedidos para reasignar");
 
@@ -125,25 +154,22 @@
         // Después de salir del bucle, se muestran los informes finales.
         Console.WriteLine("\n\n\n*** INFORME ***\n");
 
-        // Mostrar el número de envíos realizados por cada cadete.
         Console.WriteLine("* Envíos de cada cadete:");
         int totalEnvios = 0;
         foreach (var cadete in cadeteria.ListadoCadetes)
         {
-            var cantidadPedidosCompletados = cadeteria.ObtenerPedidos(cadete.Id, Estado.COMPLETADO).Count();
-            var cantidadPedidosPendientes = cadeteria.ObtenerPedidos(cadete.Id, Estado.PENDIENTE).Count();
+            int nEnviosCompletados = cadeteria.BuscarPedidos(cadete.Id)
+                                              .Where(p => p.Estado == Estado.COMPLETADO)
+                                              .Count();
+            int nEnviosPendientes = cadeteria.BuscarPedidos(cadete.Id)
+                                             .Where(p => p.Estado == Estado.PENDIENTE)
+                                             .Count();
+            int totalPedidos = nEnviosCompletados + nEnviosPendientes;
 
-            // Contar los envíos completados y pendientes por cada cadete.
-            Console.WriteLine($"\t> CADETE ID {cadete.Id} ({cadete.Nombre}) - Envíos terminados: {cantidadPedidosCompletados} - Envíos pendientes: {cantidadPedidosPendientes}");
-
-            totalEnvios += cantidadPedidosCompletados + cantidadPedidosPendientes; // Sumar el total de pedidos de cada cadete.
+            Console.WriteLine($"\t> CADETE ID {cadete.Id} ({cadete.Nombre}) - Envíos terminados: {nEnviosCompletados} Envíos pendientes: {nEnviosPendientes}");
+            totalEnvios += totalPedidos;
         }
-        System.Console.WriteLine($"\n* Envíos totales del día: {totalEnvios}");
-
-        // Calcular y mostrar el promedio de envíos por cadete.
-        System.Console.WriteLine(
-            $"* Promedio de envíos por cadete: {cadeteria.ListadoCadetes.Select(c => c.Pedidos.Count()).Average()}"
-        );
+        Console.WriteLine($"\n* Envíos totales del día: {totalEnvios}");
     }
 
     private static Cadeteria CrearCadeteria()
@@ -177,7 +203,7 @@
             if (datos.Count() < 4)
             {
                 // Si no hay suficientes datos, mostrar un mensaje de advertencia y continuar con la siguiente línea.
-                System.Console.WriteLine($"\n[!] No se pudo cargar el cadete: {linea} - {datos}");
+                Console.WriteLine($"\n[!] No se pudo cargar el cadete: {linea} - {datos}");
                 continue;
             }
 
@@ -234,7 +260,7 @@
     private static Cliente SolicitarDatosCliente()
     {
         // Solicitar el DNI del cliente.
-        System.Console.Write("> Ingrese el DNI del cliente (sin puntos ni espacios): ");
+        Console.Write("> Ingrese el DNI del cliente (sin puntos ni espacios): ");
         var dni = 0;
         var strDni = Console.ReadLine() ?? string.Empty;
 
@@ -245,7 +271,7 @@
             throw new Exception("El DNI debe ser un número");
 
         // Solicitar el nombre del cliente.
-        System.Console.Write("> Ingrese el nombre del cliente: ");
+        Console.Write("> Ingrese el nombre del cliente: ");
         var nombre = Console.ReadLine() ?? string.Empty;
 
         // Validar que el nombre no esté vacío.
@@ -253,7 +279,7 @@
             throw new Exception("El nombre no puede estar vacío");
 
         // Solicitar el teléfono del cliente.
-        System.Console.Write("> Ingrese el teléfono del cliente: ");
+        Console.Write("> Ingrese el teléfono del cliente: ");
         var telefono = Console.ReadLine() ?? string.Empty;
 
         // Validar que el teléfono no esté vacío.
@@ -261,7 +287,7 @@
             throw new Exception("El teléfono no puede estar vacío");
 
         // Solicitar la dirección del cliente.
-        System.Console.Write("> Ingrese la dirección del cliente: ");
+        Console.Write("> Ingrese la dirección del cliente: ");
         var direccion = Console.ReadLine() ?? string.Empty;
 
         // Validar que la dirección no esté vacía.
@@ -269,7 +295,7 @@
             throw new Exception("La dirección no puede estar vacía");
 
         // Solicitar datos adicionales o referencias de la dirección (opcional).
-        System.Console.Write(
+        Console.Write(
             "> Ingrese datos o referencias de la dirección del cliente (opcional): "
         );
         var datosReferencia = Console.ReadLine() ?? string.Empty;
@@ -281,7 +307,7 @@
     private static Pedido SolicitarDatosPedido(Cliente cliente)
     {
         // Solicitar al usuario que ingrese los detalles del pedido.
-        System.Console.Write("> Ingrese los detalles del pedido (obligatorio): ");
+        Console.Write("> Ingrese los detalles del pedido (obligatorio): ");
         var detalles = Console.ReadLine() ?? string.Empty;
 
         // Verificar que los detalles no estén vacíos.
@@ -302,7 +328,7 @@
         }
 
         // Solicitar al usuario que ingrese el número del pedido que desea seleccionar.
-        System.Console.Write("\n> Ingrese el número del pedido a asignar: ");
+        Console.Write("\n> Ingrese el número del pedido a asignar: ");
         var strNro = Console.ReadLine() ?? string.Empty;
         var nroPedido = 0;
 
@@ -327,11 +353,11 @@
         var detallesCadetes = cadeteria.ListadoCadetes.Select(cadete => cadete.ToString());
         foreach (var detalle in detallesCadetes)
         {
-            System.Console.WriteLine($"\t* {detalle}");
+            Console.WriteLine($"\t* {detalle}");
         }
 
         // Solicitar al usuario que ingrese el ID del cadete al cual se le asignará el pedido.
-        System.Console.Write("\n> Ingrese el ID del cadete al cual asignarle el pedido: ");
+        Console.Write("\n> Ingrese el ID del cadete al cual asignarle el pedido: ");
         var strId = Console.ReadLine() ?? string.Empty;
         var id = 0;
 
@@ -359,11 +385,11 @@
         // Mostrar todos los valores posibles del enum Estado en la consola.
         foreach (var estado in Enum.GetValues(typeof(Estado)))
         {
-            System.Console.WriteLine($"> ID {++contador}. {estado}");
+            Console.WriteLine($"> ID {++contador}. {estado}");
         }
 
         // Solicitar al usuario que seleccione el ID del nuevo estado para el pedido.
-        System.Console.Write("> Selecciona el ID del nuevo estado para el pedido: ");
+        Console.Write("> Selecciona el ID del nuevo estado para el pedido: ");
         var strOpcion = Console.ReadLine() ?? string.Empty;
 
         // Intentar convertir el ID ingresado en un valor del enum Estado.
